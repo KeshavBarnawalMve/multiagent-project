@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Review Report - PR #2</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #f8f9fa;
+      color: #212529;
+    }
+    h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 12px; }
+    h2 { color: #34495e; margin-top: 32px; }
+    h3 { color: #555; }
+    .summary {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 24px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .metric { text-align: center; padding: 12px; }
+    .metric-value { font-size: 2em; font-weight: bold; color: #3498db; }
+    .metric-label { color: #6c757d; font-size: 0.9em; margin-top: 8px; }
+    .recommendations {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 24px 0;
+    }
+    ul { list-style: none; padding: 0; }
+    li {
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 4px;
+      background: white;
+      border-left: 4px solid #3498db;
+    }
+    .rec-critical { border-left-color: #e74c3c; }
+    .rec-high { border-left-color: #f39c12; }
+    .rec-medium { border-left-color: #3498db; }
+    .rec-low { border-left-color: #27ae60; }
+    .priority { font-weight: bold; margin-right: 8px; }
+    .rec-critical .priority { color: #e74c3c; }
+    .rec-high .priority { color: #f39c12; }
+    .rec-medium .priority { color: #3498db; }
+    .rec-low .priority { color: #27ae60; }
+    .file-review {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-top: 4px solid #3498db;
+    }
+    .file-name {
+      font-family: monospace;
+      font-size: 1.1em;
+      margin-bottom: 12px;
+      color: #2c3e50;
+    }
+    .scores {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+      font-size: 0.95em;
+    }
+    .score-item { padding: 8px; background: #f0f0f0; border-radius: 4px; }
+    .issue, .gap, .refactor {
+      padding: 12px;
+      margin: 8px 0;
+      background: #f9f9f9;
+      border-left: 3px solid #999;
+      border-radius: 2px;
+    }
+    .issue { border-left-color: #e74c3c; }
+    .gap { border-left-color: #f39c12; }
+    .refactor { border-left-color: #27ae60; }
+    .code-example {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+      margin: 8px 0;
+      overflow-x: auto;
+    }
+    footer { text-align: center; color: #6c757d; margin-top: 32px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Code Review Report</h1>
+  <p><strong>PR #2:</strong> Add search functionality for todos | <strong>Repository:</strong> udacity/cd14715-simple-todo-app</p>
+
+  <div class="summary">
+    <div class="metric">
+      <div class="metric-value">75</div>
+      <div class="metric-label">Overall Score</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">2</div>
+      <div class="metric-label">Files Reviewed</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">1</div>
+      <div class="metric-label">Critical Issues</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">4</div>
+      <div class="metric-label">High Priority Tests</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">5</div>
+      <div class="metric-label">Refactorings</div>
+    </div>
+  </div>
+
+  <h2>🎯 Top Recommendations</h2>
+  <div class="recommendations">
+    <ul>
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Performance</strong>: Replace Array.includes in loop with Set for O(n) complexity instead of O(n²)
+        <br><small>Files: src/features/search/searchUtils.ts</small>
+      </li>
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Testing</strong>: Add tests for null/undefined input handling and edge cases in search functions
+        <br><small>Files: src/features/search/searchUtils.ts</small>
+      </li>
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Testing</strong>: Add debounce timing tests and keyboard interaction tests in SearchInput component
+        <br><small>Files: src/features/search/SearchInput.tsx</small>
+      </li>
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Architecture</strong>: Extract search logic into custom hook for better reusability and testability
+        <br><small>Files: src/features/search/SearchInput.tsx</small>
+      </li>
+      <li class="rec-medium">
+        <span class="priority">[MEDIUM]</span>
+        <strong>Code Quality</strong>: Add null checks before calling string methods on user input
+        <br><small>Files: src/features/search/searchUtils.ts</small>
+      </li>
+    </ul>
+  </div>
+
+  <h2>📁 File Details</h2>
+
+  <div class="file-review">
+    <div class="file-name">📄 src/features/search/SearchInput.tsx</div>
+    <div class="scores">
+      <div class="score-item">Quality Score: <strong>79/100</strong></div>
+      <div class="score-item">Test Coverage: <strong>~65%</strong></div>
+    </div>
+
+    <h3>Code Quality Issues (2)</h3>
+    <div class="issue">
+      <strong>Line 24:</strong> <span style="color: #3498db;">MEDIUM SEVERITY</span>
+      <p>Handler function defined inline, should be extracted to avoid recreating on every render</p>
+      <p><strong>Suggestion:</strong> Extract handleSearch to a named function using useCallback hook</p>
+    </div>
+    <div class="issue">
+      <strong>Line 35:</strong> <span style="color: #f39c12;">LOW SEVERITY</span>
+      <p>Inconsistent spacing in JSX conditional rendering</p>
+      <p><strong>Suggestion:</strong> Use consistent formatting with ternary operator</p>
+    </div>
+
+    <h3>Test Coverage Gaps (3)</h3>
+    <div class="gap">
+      <strong>handleSearch() - empty string case</strong> <span style="color: #e74c3c;">High Priority</span>
+      <p><strong>Reasoning:</strong> Behavior when user clears search box not tested</p>
+      <div class="code-example">expect(onSearch).toHaveBeenCalledWith('')</div>
+    </div>
+    <div class="gap">
+      <strong>debounce functionality - rapid input</strong> <span style="color: #e74c3c;">High Priority</span>
+      <p><strong>Reasoning:</strong> Debounce timing edge cases not covered</p>
+      <div class="code-example">jest.useFakeTimers(); fireEvent.change(input); jest.advanceTimersByTime(300)</div>
+    </div>
+    <div class="gap">
+      <strong>clearSearch() - accessibility</strong> <span style="color: #3498db;">Medium Priority</span>
+      <p><strong>Reasoning:</strong> Keyboard event handling not tested</p>
+      <div class="code-example">fireEvent.keyDown(clearBtn, { key: 'Enter' })</div>
+    </div>
+
+    <h3>Refactoring Opportunities (3)</h3>
+    <div class="refactor">
+      <strong>Extract Function</strong> (High Impact)
+      <p><strong>Location:</strong> Component body - lines 20-50</p>
+      <p><strong>Description:</strong> Extract search logic into custom hook for reusability</p>
+      <p><strong>Before:</strong></p>
+      <div class="code-example">const [query, setQuery] = useState(''); const handleSearch = debounce(...)</div>
+      <p><strong>After:</strong></p>
+      <div class="code-example">const { query, handleSearch, clearSearch } = useSearch()</div>
+      <p><strong>Benefits:</strong> Makes search logic reusable, improves component testability</p>
+    </div>
+  </div>
+
+  <div class="file-review">
+    <div class="file-name">📄 src/features/search/searchUtils.ts</div>
+    <div class="scores">
+      <div class="score-item">Quality Score: <strong>72/100</strong></div>
+      <div class="score-item">Test Coverage: <strong>~72%</strong></div>
+    </div>
+
+    <h3>Code Quality Issues (2)</h3>
+    <div class="issue">
+      <strong>Line 12:</strong> <span style="color: #e74c3c;">HIGH SEVERITY</span>
+      <p>Using Array.includes() in nested loop - O(n²) complexity for large datasets</p>
+      <p><strong>Suggestion:</strong> Convert to Set for O(n) lookup performance</p>
+    </div>
+    <div class="issue">
+      <strong>Line 45:</strong> <span style="color: #3498db;">MEDIUM SEVERITY</span>
+      <p>Missing null check before calling .toLowerCase() on user input</p>
+      <p><strong>Suggestion:</strong> Add null/undefined check or use optional chaining with default value</p>
+    </div>
+
+    <h3>Test Coverage Gaps (3)</h3>
+    <div class="gap">
+      <strong>filterTodos() - null input</strong> <span style="color: #e74c3c;">Critical Priority</span>
+      <p><strong>Reasoning:</strong> No test for null/undefined input handling</p>
+      <div class="code-example">expect(() => filterTodos(null, 'query')).toThrow()</div>
+    </div>
+    <div class="gap">
+      <strong>performSearch() - special characters</strong> <span style="color: #e74c3c;">High Priority</span>
+      <p><strong>Reasoning:</strong> Special character escaping not tested</p>
+      <div class="code-example">expect(performSearch(todos, '@#$%')).toBeDefined()</div>
+    </div>
+
+    <h3>Refactoring Opportunities (2)</h3>
+    <div class="refactor">
+      <strong>Simplify</strong> (High Impact)
+      <p><strong>Location:</strong> filterTodos() - line 12</p>
+      <p><strong>Description:</strong> Replace Array.includes in loop with Set for performance</p>
+      <p><strong>Before:</strong></p>
+      <div class="code-example">const tags = ['urgent', 'work', 'personal']; todos.filter(t => tags.includes(t.tag))</div>
+      <p><strong>After:</strong></p>
+      <div class="code-example">const tags = new Set(['urgent', 'work', 'personal']); todos.filter(t => tags.has(t.tag))</div>
+      <p><strong>Benefits:</strong> O(n) instead of O(n²) complexity - critical for large datasets</p>
+    </div>
+  </div>
+
+  <footer>
+    Generated at 2026-11-17T08:10:30Z • Duration: 185000ms
+  </footer>
+</body>
+</html>

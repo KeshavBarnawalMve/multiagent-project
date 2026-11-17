@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Review Report - PR #3</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #f8f9fa;
+      color: #212529;
+    }
+    h1 { color: #2c3e50; border-bottom: 3px solid #e74c3c; padding-bottom: 12px; }
+    h2 { color: #34495e; margin-top: 32px; }
+    h3 { color: #555; }
+    .warning-banner {
+      background: #fff3cd;
+      border: 2px solid #e74c3c;
+      padding: 16px;
+      border-radius: 4px;
+      margin: 16px 0;
+      color: #856404;
+    }
+    .warning-banner strong { color: #d32f2f; }
+    .summary {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 24px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .metric { text-align: center; padding: 12px; }
+    .metric-value { font-size: 2em; font-weight: bold; color: #e74c3c; }
+    .metric-label { color: #6c757d; font-size: 0.9em; margin-top: 8px; }
+    .recommendations {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin: 24px 0;
+    }
+    ul { list-style: none; padding: 0; }
+    li {
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 4px;
+      background: white;
+      border-left: 4px solid #3498db;
+    }
+    .rec-critical { border-left-color: #e74c3c; }
+    .rec-high { border-left-color: #f39c12; }
+    .rec-medium { border-left-color: #3498db; }
+    .rec-low { border-left-color: #27ae60; }
+    .priority { font-weight: bold; margin-right: 8px; }
+    .rec-critical .priority { color: #e74c3c; }
+    .rec-high .priority { color: #f39c12; }
+    .rec-medium .priority { color: #3498db; }
+    .rec-low .priority { color: #27ae60; }
+    .file-review {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      margin: 16px 0;
+      border-top: 4px solid #e74c3c;
+    }
+    .file-name {
+      font-family: monospace;
+      font-size: 1.1em;
+      margin-bottom: 12px;
+      color: #2c3e50;
+    }
+    .scores {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+      font-size: 0.95em;
+    }
+    .score-item { padding: 8px; background: #f0f0f0; border-radius: 4px; }
+    .issue, .gap, .refactor {
+      padding: 12px;
+      margin: 8px 0;
+      background: #f9f9f9;
+      border-left: 3px solid #999;
+      border-radius: 2px;
+    }
+    .issue { border-left-color: #e74c3c; }
+    .gap { border-left-color: #f39c12; }
+    .refactor { border-left-color: #27ae60; }
+    .code-example {
+      background: #f5f5f5;
+      padding: 12px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+      margin: 8px 0;
+      overflow-x: auto;
+    }
+    footer { text-align: center; color: #6c757d; margin-top: 32px; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>🔍 Code Review Report</h1>
+  <p><strong>PR #3:</strong> Add premium subscription features | <strong>Repository:</strong> udacity/cd14715-simple-todo-app</p>
+
+  <div class="warning-banner">
+    <strong>⚠️ CRITICAL ISSUES DETECTED:</strong> This PR contains critical security and data integrity issues that must be addressed before merging. Payment processing code requires comprehensive testing.
+  </div>
+
+  <div class="summary">
+    <div class="metric">
+      <div class="metric-value">51</div>
+      <div class="metric-label">Overall Score</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">2</div>
+      <div class="metric-label">Files Reviewed</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">3</div>
+      <div class="metric-label">Critical Issues</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">10</div>
+      <div class="metric-label">High Priority Tests</div>
+    </div>
+    <div class="metric">
+      <div class="metric-value">9</div>
+      <div class="metric-label">Refactorings</div>
+    </div>
+  </div>
+
+  <h2>🎯 Critical Recommendations (Must Fix Before Merge)</h2>
+  <div class="recommendations">
+    <ul>
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Security</strong>: Remove hardcoded API key from source code - move to environment variables immediately
+        <br><small>Files: src/features/premium/PremiumFeatures.ts</small>
+      </li>
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Testing</strong>: Add comprehensive test suite for payment processing (currently 0% coverage)
+        <br><small>Files: src/features/premium/PremiumFeatures.ts, src/features/premium/PaymentProcessor.ts</small>
+      </li>
+      <li class="rec-critical">
+        <span class="priority">[CRITICAL]</span>
+        <strong>Data Integrity</strong>: Use database transactions for balance check + debit to prevent race conditions
+        <br><small>Files: src/features/premium/PaymentProcessor.ts</small>
+      </li>
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Code Quality</strong>: Add input validation for payment amounts to prevent invalid transactions
+        <br><small>Files: src/features/premium/PaymentProcessor.ts</small>
+      </li>
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Maintainability</strong>: Break down long functions (120+ lines) into smaller testable units
+        <br><small>Files: src/features/premium/PremiumFeatures.ts</small>
+      </li>
+      <li class="rec-high">
+        <span class="priority">[HIGH]</span>
+        <strong>Error Handling</strong>: Add error handling for all network/API calls
+        <br><small>Files: src/features/premium/PremiumFeatures.ts</small>
+      </li>
+    </ul>
+  </div>
+
+  <h2>📁 File Details</h2>
+
+  <div class="file-review">
+    <div class="file-name">📄 src/features/premium/PremiumFeatures.ts</div>
+    <div class="scores">
+      <div class="score-item">Quality Score: <strong>54/100</strong></div>
+      <div class="score-item">Test Coverage: <strong>0%</strong></div>
+    </div>
+
+    <h3>Code Quality Issues (4)</h3>
+    <div class="issue">
+      <strong>Line 18:</strong> <span style="color: #e74c3c;">CRITICAL SEVERITY</span>
+      <p>Hardcoded API key in source code - major security vulnerability</p>
+      <p><strong>Suggestion:</strong> Move API key to environment variable or secure vault</p>
+    </div>
+    <div class="issue">
+      <strong>Line 35:</strong> <span style="color: #e74c3c;">HIGH SEVERITY</span>
+      <p>Very long function (120+ lines) doing multiple things</p>
+      <p><strong>Suggestion:</strong> Break into smaller functions with single responsibility</p>
+    </div>
+    <div class="issue">
+      <strong>Line 52:</strong> <span style="color: #e74c3c;">HIGH SEVERITY</span>
+      <p>No error handling for network requests</p>
+      <p><strong>Suggestion:</strong> Add try/catch blocks around API calls</p>
+    </div>
+    <div class="issue">
+      <strong>Line 78:</strong> <span style="color: #3498db;">MEDIUM SEVERITY</span>
+      <p>Inefficient string concatenation in loop</p>
+      <p><strong>Suggestion:</strong> Use array.join() instead of += concatenation</p>
+    </div>
+
+    <h3>Test Coverage Gaps (5) - 0% Coverage</h3>
+    <div class="gap">
+      <strong>checkSubscriptionStatus()</strong> <span style="color: #e74c3c;">Critical Priority</span>
+      <p><strong>Reasoning:</strong> Payment/subscription logic must be thoroughly tested</p>
+      <div class="code-example">expect(checkSubscriptionStatus('premium')).toEqual({ active: true })</div>
+    </div>
+    <div class="gap">
+      <strong>processPayment()</strong> <span style="color: #e74c3c;">Critical Priority</span>
+      <p><strong>Reasoning:</strong> Financial transaction logic requires comprehensive testing</p>
+      <div class="code-example">expect(processPayment({ amount: 99 })).resolves.toBeDefined()</div>
+    </div>
+  </div>
+
+  <div class="file-review">
+    <div class="file-name">📄 src/features/premium/PaymentProcessor.ts</div>
+    <div class="scores">
+      <div class="score-item">Quality Score: <strong>48/100</strong></div>
+      <div class="score-item">Test Coverage: <strong>0%</strong></div>
+    </div>
+
+    <h3>Code Quality Issues (4)</h3>
+    <div class="issue">
+      <strong>Line 12:</strong> <span style="color: #e74c3c;">CRITICAL SEVERITY</span>
+      <p>Missing input validation on payment amount - potential for negative/zero payments</p>
+      <p><strong>Suggestion:</strong> Add validation: amount > 0 && amount <= MAX_CHARGE</p>
+    </div>
+    <div class="issue">
+      <strong>Line 45:</strong> <span style="color: #e74c3c;">HIGH SEVERITY</span>
+      <p>Race condition: checking balance then debiting without lock</p>
+      <p><strong>Suggestion:</strong> Use database transaction or atomic operation for balance check+debit</p>
+    </div>
+    <div class="issue">
+      <strong>Line 68:</strong> <span style="color: #e74c3c;">HIGH SEVERITY</span>
+      <p>Magic number 1099 used for currency conversion</p>
+      <p><strong>Suggestion:</strong> Define constant: const CENTS_PER_DOLLAR = 100</p>
+    </div>
+    <div class="issue">
+      <strong>Line 92:</strong> <span style="color: #3498db;">MEDIUM SEVERITY</span>
+      <p>Exception message exposes internal system details</p>
+      <p><strong>Suggestion:</strong> Use generic error message, log details separately</p>
+    </div>
+
+    <h3>Test Coverage Gaps (4) - 0% Coverage</h3>
+    <div class="gap">
+      <strong>processCharge() - insufficient balance</strong> <span style="color: #e74c3c;">Critical Priority</span>
+      <p><strong>Reasoning:</strong> Must handle case when user has insufficient balance</p>
+      <div class="code-example">expect(processCharge(100, 50)).rejects.toThrow('Insufficient funds')</div>
+    </div>
+    <div class="gap">
+      <strong>convertCurrency() - boundary amounts</strong> <span style="color: #e74c3c;">Critical Priority</span>
+      <p><strong>Reasoning:</strong> Edge cases like $0.01 and large amounts need testing</p>
+      <div class="code-example">expect(convertTocents(0.01)).toBe(1); expect(convertTocents(999999)).toBe(99999900)</div>
+    </div>
+  </div>
+
+  <footer>
+    Generated at 2026-11-17T08:25:15Z • Duration: 190000ms
+  </footer>
+</body>
+</html>

@@ -1,0 +1,116 @@
+{
+  "pullRequest": {
+    "owner": "udacity",
+    "repo": "cd14715-simple-todo-app",
+    "number": 1
+  },
+  "fileReviews": [
+    {
+      "file": "src/fixtures/cleanCodeFixture.ts",
+      "codeQuality": {
+        "file": "src/fixtures/cleanCodeFixture.ts",
+        "issues": [
+          {
+            "line": 15,
+            "severity": "low",
+            "category": "style",
+            "description": "Inconsistent naming convention - variable 'x' should be more descriptive",
+            "suggestion": "Rename to 'todoItem' or 'currentItem' for clarity"
+          },
+          {
+            "line": 42,
+            "severity": "medium",
+            "category": "maintainability",
+            "description": "Function is doing multiple things - parsing and filtering",
+            "suggestion": "Extract filtering logic into separate function"
+          }
+        ],
+        "overallScore": 82,
+        "summary": "Good code quality with minor style improvements needed. Function responsibilities could be better separated."
+      },
+      "testCoverage": {
+        "file": "src/fixtures/cleanCodeFixture.ts",
+        "hasTests": true,
+        "testFiles": ["tests/fixtures/cleanCodeFixture.test.ts"],
+        "untestedPaths": [
+          {
+            "type": "edge-case",
+            "location": "parseFixture() - empty array",
+            "priority": "medium",
+            "reasoning": "Edge case with empty input not covered",
+            "suggestedTest": "expect(parseFixture([])).toEqual([])"
+          },
+          {
+            "type": "branch",
+            "location": "filterCompleted() - null handling",
+            "priority": "high",
+            "reasoning": "Null/undefined inputs should be tested",
+            "suggestedTest": "expect(filterCompleted(null)).toThrow()"
+          }
+        ],
+        "coverageEstimate": 78,
+        "summary": "Good test coverage overall with 78% estimated coverage. Two important edge cases need testing."
+      },
+      "refactorings": {
+        "file": "src/fixtures/cleanCodeFixture.ts",
+        "suggestions": [
+          {
+            "type": "extract-function",
+            "location": "parseFixture() - lines 20-35",
+            "impact": "high",
+            "description": "Complex parsing logic should be extracted into utility function",
+            "before": "const data = items.map(i => ({...i, parsed: JSON.parse(i.json)})).filter(x => x.parsed)",
+            "after": "const data = items.map(parseItem).filter(isValid)",
+            "benefits": "Improves readability and allows reuse in other fixtures"
+          },
+          {
+            "type": "modernize",
+            "location": "filterCompleted() - line 50",
+            "impact": "medium",
+            "description": "Use optional chaining instead of manual null checks",
+            "before": "if (item && item.metadata && item.metadata.completed) { return item; }",
+            "after": "if (item?.metadata?.completed) { return item; }",
+            "benefits": "More concise and modern JavaScript syntax"
+          }
+        ],
+        "summary": "Two refactoring opportunities identified: extract complex parsing logic and modernize null checking patterns."
+      }
+    }
+  ],
+  "summary": {
+    "totalFiles": 1,
+    "overallScore": 81,
+    "criticalIssues": 0,
+    "highPriorityTests": 1,
+    "refactoringOpportunities": 2
+  },
+  "recommendations": [
+    {
+      "priority": "high",
+      "category": "Testing",
+      "description": "Add test for null/undefined input handling in filterCompleted()",
+      "files": ["src/fixtures/cleanCodeFixture.ts"]
+    },
+    {
+      "priority": "medium",
+      "category": "Code Quality",
+      "description": "Extract parseFixture logic into separate utility function for better maintainability",
+      "files": ["src/fixtures/cleanCodeFixture.ts"]
+    },
+    {
+      "priority": "low",
+      "category": "Style",
+      "description": "Use optional chaining operator for null checks",
+      "files": ["src/fixtures/cleanCodeFixture.ts"]
+    }
+  ],
+  "metadata": {
+    "analyzedAt": "2026-11-17T07:55:00Z",
+    "duration": 180000,
+    "agentVersions": {
+      "code-quality-analyzer": "1.0",
+      "test-coverage-analyzer": "1.0",
+      "refactoring-suggester": "1.0"
+    }
+  }
+}

@@ -1,0 +1,222 @@
+{
+  "pullRequest": {
+    "owner": "udacity",
+    "repo": "cd14715-simple-todo-app",
+    "number": 2
+  },
+  "fileReviews": [
+    {
+      "file": "src/features/search/SearchInput.tsx",
+      "codeQuality": {
+        "file": "src/features/search/SearchInput.tsx",
+        "issues": [
+          {
+            "line": 24,
+            "severity": "medium",
+            "category": "maintainability",
+            "description": "Handler function defined inline, should be extracted to avoid recreating on every render",
+            "suggestion": "Extract handleSearch to a named function using useCallback hook"
+          },
+          {
+            "line": 35,
+            "severity": "low",
+            "category": "style",
+            "description": "Inconsistent spacing in JSX conditional rendering",
+            "suggestion": "Use consistent formatting with ternary operator"
+          }
+        ],
+        "overallScore": 79,
+        "summary": "Good React component structure with minor performance and style issues. Main concern is inline handler creation."
+      },
+      "testCoverage": {
+        "file": "src/features/search/SearchInput.tsx",
+        "hasTests": true,
+        "testFiles": ["src/features/search/__tests__/SearchInput.test.tsx"],
+        "untestedPaths": [
+          {
+            "type": "branch",
+            "location": "handleSearch() - empty string case",
+            "priority": "high",
+            "reasoning": "Behavior when user clears search box not tested",
+            "suggestedTest": "expect(onSearch).toHaveBeenCalledWith('')"
+          },
+          {
+            "type": "edge-case",
+            "location": "debounce functionality - rapid input",
+            "priority": "high",
+            "reasoning": "Debounce timing edge cases not covered",
+            "suggestedTest": "jest.useFakeTimers(); fireEvent.change(input); jest.advanceTimersByTime(300)"
+          },
+          {
+            "type": "function",
+            "location": "clearSearch() - accessibility",
+            "priority": "medium",
+            "reasoning": "Keyboard event handling not tested",
+            "suggestedTest": "fireEvent.keyDown(clearBtn, { key: 'Enter' })"
+          }
+        ],
+        "coverageEstimate": 65,
+        "summary": "Partial coverage at 65%. Missing tests for debounce behavior and keyboard interactions."
+      },
+      "refactorings": {
+        "file": "src/features/search/SearchInput.tsx",
+        "suggestions": [
+          {
+            "type": "extract-function",
+            "location": "Component body - lines 20-50",
+            "impact": "high",
+            "description": "Extract search logic into custom hook for reusability",
+            "before": "const [query, setQuery] = useState(''); const handleSearch = debounce(...)",
+            "after": "const { query, handleSearch, clearSearch } = useSearch()",
+            "benefits": "Makes search logic reusable, improves component testability"
+          },
+          {
+            "type": "modernize",
+            "location": "Event handler - line 24",
+            "impact": "medium",
+            "description": "Use useCallback to memoize handler and prevent unnecessary re-renders",
+            "before": "const handleSearch = (value) => { ... }",
+            "after": "const handleSearch = useCallback((value) => { ... }, [])",
+            "benefits": "Improves performance when SearchInput is a child of optimized parent"
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "Component state management",
+            "impact": "high",
+            "description": "Consider using context or state management for search state",
+            "before": "Local useState for search query and results",
+            "after": "Move search state to context or Redux to share across app",
+            "benefits": "Allows other components to access search results without prop drilling"
+          }
+        ],
+        "summary": "Three significant refactoring opportunities: extract custom hook, memoize handler, improve state management."
+      }
+    },
+    {
+      "file": "src/features/search/searchUtils.ts",
+      "codeQuality": {
+        "file": "src/features/search/searchUtils.ts",
+        "issues": [
+          {
+            "line": 12,
+            "severity": "high",
+            "category": "performance",
+            "description": "Using Array.includes() in nested loop - O(n²) complexity for large datasets",
+            "suggestion": "Convert to Set for O(n) lookup performance"
+          },
+          {
+            "line": 45,
+            "severity": "medium",
+            "category": "bug-risk",
+            "description": "Missing null check before calling .toLowerCase() on user input",
+            "suggestion": "Add null/undefined check or use optional chaining with default value"
+          }
+        ],
+        "overallScore": 72,
+        "summary": "Performance and robustness issues detected. Critical: convert Array.includes to Set. Important: add null checks."
+      },
+      "testCoverage": {
+        "file": "src/features/search/searchUtils.ts",
+        "hasTests": true,
+        "testFiles": ["src/features/search/__tests__/searchUtils.test.ts"],
+        "untestedPaths": [
+          {
+            "type": "branch",
+            "location": "filterTodos() - null input",
+            "priority": "critical",
+            "reasoning": "No test for null/undefined input handling",
+            "suggestedTest": "expect(() => filterTodos(null, 'query')).toThrow()"
+          },
+          {
+            "type": "branch",
+            "location": "performSearch() - special characters",
+            "priority": "high",
+            "reasoning": "Special character escaping not tested",
+            "suggestedTest": "expect(performSearch(todos, '@#$%')).toBeDefined()"
+          },
+          {
+            "type": "edge-case",
+            "location": "highlightMatches() - very long strings",
+            "priority": "medium",
+            "reasoning": "Performance with large text not validated",
+            "suggestedTest": "const longString = 'a'.repeat(10000); highlightMatches(longString, 'a')"
+          }
+        ],
+        "coverageEstimate": 72,
+        "summary": "Good test coverage at 72% but missing critical null handling tests."
+      },
+      "refactorings": {
+        "file": "src/features/search/searchUtils.ts",
+        "suggestions": [
+          {
+            "type": "simplify",
+            "location": "filterTodos() - line 12",
+            "impact": "high",
+            "description": "Replace Array.includes in loop with Set for performance",
+            "before": "const tags = ['urgent', 'work', 'personal']; todos.filter(t => tags.includes(t.tag))",
+            "after": "const tags = new Set(['urgent', 'work', 'personal']); todos.filter(t => tags.has(t.tag))",
+            "benefits": "O(n) instead of O(n²) complexity - critical for large datasets"
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "performSearch() - line 45",
+            "impact": "high",
+            "description": "Add proper null/undefined handling for input validation",
+            "before": "const query = userInput.toLowerCase()",
+            "after": "const query = (userInput || '').toLowerCase()",
+            "benefits": "Prevents runtime errors with null/undefined inputs"
+          }
+        ],
+        "summary": "Critical: improve performance using Set instead of Array.includes. Important: add null safety."
+      }
+    }
+  ],
+  "summary": {
+    "totalFiles": 2,
+    "overallScore": 75,
+    "criticalIssues": 1,
+    "highPriorityTests": 4,
+    "refactoringOpportunities": 5
+  },
+  "recommendations": [
+    {
+      "priority": "critical",
+      "category": "Performance",
+      "description": "Replace Array.includes in loop with Set for O(n) complexity instead of O(n²)",
+      "files": ["src/features/search/searchUtils.ts"]
+    },
+    {
+      "priority": "high",
+      "category": "Testing",
+      "description": "Add tests for null/undefined input handling and edge cases in search functions",
+      "files": ["src/features/search/searchUtils.ts"]
+    },
+    {
+      "priority": "high",
+      "category": "Testing",
+      "description": "Add debounce timing tests and keyboard interaction tests in SearchInput component",
+      "files": ["src/features/search/SearchInput.tsx"]
+    },
+    {
+      "priority": "high",
+      "category": "Architecture",
+      "description": "Extract search logic into custom hook for better reusability and testability",
+      "files": ["src/features/search/SearchInput.tsx"]
+    },
+    {
+      "priority": "medium",
+      "category": "Code Quality",
+      "description": "Add null checks before calling string methods on user input",
+      "files": ["src/features/search/searchUtils.ts"]
+    }
+  ],
+  "metadata": {
+    "analyzedAt": "2026-11-17T08:10:30Z",
+    "duration": 185000,
+    "agentVersions": {
+      "code-quality-analyzer": "1.0",
+      "test-coverage-analyzer": "1.0",
+      "refactoring-suggester": "1.0"
+    }
+  }
+}

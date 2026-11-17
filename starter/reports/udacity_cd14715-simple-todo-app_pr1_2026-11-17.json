@@ -1,0 +1,326 @@
+{
+  "pullRequest": {
+    "owner": "udacity",
+    "repo": "cd14715-simple-todo-app",
+    "number": 1
+  },
+  "fileReviews": [
+    {
+      "file": "fixtures/clean-code.ts",
+      "codeQuality": {
+        "file": "fixtures/clean-code.ts",
+        "issues": [
+          {
+            "line": 24,
+            "severity": "critical",
+            "category": "security",
+            "description": "Email validation regex is inadequate and can be bypassed. The pattern /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/ is too permissive and fails on RFC-compliant email addresses.",
+            "suggestion": "Replace with a battle-tested library like zod or email-validator instead of custom regex. Consider: const emailSchema = z.string().email();"
+          },
+          {
+            "line": 32,
+            "severity": "critical",
+            "category": "security",
+            "description": "XSS prevention through simple string replacement is insufficient. This approach is easily bypassed (case-sensitivity, encoded variations, attribute-based XSS not covered).",
+            "suggestion": "Use a proven sanitization library like DOMPurify or xss. Example: import DOMPurify from 'isomorphic-dompurify'; const sanitized = DOMPurify.sanitize(input);"
+          },
+          {
+            "line": 70,
+            "severity": "critical",
+            "category": "security",
+            "description": "ID generation using Math.random() and simple concatenation is predictable and vulnerable to enumeration attacks. Violates OWASP recommendations.",
+            "suggestion": "Use cryptographically secure ID generation. Replace with: import { randomUUID } from 'crypto'; return randomUUID();"
+          },
+          {
+            "line": 42,
+            "severity": "high",
+            "category": "security",
+            "description": "No maximum length validation on input fields. Vulnerable to DoS attacks through extremely long inputs (name field could be 1MB).",
+            "suggestion": "Add length constraints to CreateUserInput interface and validate before processing. Example: const MAX_NAME_LENGTH = 255;"
+          },
+          {
+            "line": 83,
+            "severity": "high",
+            "category": "security",
+            "description": "Database query shown as parameterized, but no verification that actual database layer uses parameterized queries or prepared statements.",
+            "suggestion": "Verify database layer uses parameterized queries. Document the SQL injection protection strategy explicitly."
+          },
+          {
+            "line": 50,
+            "severity": "medium",
+            "category": "maintainability",
+            "description": "Error messages may reveal information about system state (email existence). Can enable user enumeration attacks.",
+            "suggestion": "Use generic error messages: throw new Error('Account creation failed') instead of 'Email already registered'"
+          },
+          {
+            "line": 42,
+            "severity": "high",
+            "category": "maintainability",
+            "description": "Multiple responsibilities in createUser function: validation, sanitization, ID generation, user object creation, and database persistence. Violates Single Responsibility Principle.",
+            "suggestion": "Extract into separate functions: validateUserInput(), buildUser(), sanitizeInput() with clear separation of concerns."
+          },
+          {
+            "line": 65,
+            "severity": "medium",
+            "category": "best-practice",
+            "description": "No rate limiting mechanism. Vulnerable to brute force attacks on user creation endpoint.",
+            "suggestion": "Implement rate limiting at the route/middleware level. Consider libraries like express-rate-limit."
+          },
+          {
+            "line": 24,
+            "severity": "medium",
+            "category": "maintainability",
+            "description": "Insufficient documentation. JSDoc comments don't explain security considerations, validation rules, or error conditions.",
+            "suggestion": "Add comprehensive JSDoc with @security, @throws, @param annotations explaining validation and security properties."
+          },
+          {
+            "line": 70,
+            "severity": "medium",
+            "category": "best-practice",
+            "description": "No configuration system for validation rules (max lengths, ID format, etc.). Hardcoded values scattered throughout.",
+            "suggestion": "Extract magic values to constants. Create a config object: const CONFIG = { EMAIL_MAX_LENGTH: 255, USER_ID_VERSION: 'v4' }"
+          }
+        ],
+        "overallScore": 42,
+        "summary": "The file contains multiple critical security vulnerabilities that must be addressed before production use. Email validation and XSS prevention use inadequate homegrown approaches instead of proven libraries. Weak ID generation is vulnerable to enumeration attacks. The code lacks proper separation of concerns and comprehensive error handling. No test coverage exists. While the overall structure is reasonable, security and maintainability improvements are essential."
+      },
+      "testCoverage": {
+        "file": "fixtures/clean-code.ts",
+        "hasTests": false,
+        "testFiles": [],
+        "untestedPaths": [
+          {
+            "type": "function",
+            "location": "isValidEmail()",
+            "priority": "critical",
+            "reasoning": "Security-critical input validation function. Needs tests for valid emails, invalid formats, edge cases (empty string, special characters, multiple @).",
+            "suggestedTest": "expect(isValidEmail('user@example.com')).toBe(true); expect(isValidEmail('invalid')).toBe(false);"
+          },
+          {
+            "type": "function",
+            "location": "sanitizeInput()",
+            "priority": "critical",
+            "reasoning": "Security-critical XSS prevention function. Needs tests for script tags, event handlers, encoded entities, mixed content.",
+            "suggestedTest": "expect(sanitizeInput(\"<script>alert('xss')</script>\")).not.toContain('<script>');"
+          },
+          {
+            "type": "function",
+            "location": "createUser()",
+            "priority": "critical",
+            "reasoning": "Core business logic function. Needs tests for valid creation, validation failures, duplicate emails, database errors, input sanitization.",
+            "suggestedTest": "expect(await createUser({ email: 'user@example.com', name: 'John' })).toHaveProperty('id');"
+          },
+          {
+            "type": "function",
+            "location": "generateId()",
+            "priority": "high",
+            "reasoning": "ID uniqueness is critical for data integrity. Needs tests for uniqueness, format, performance, collision resistance.",
+            "suggestedTest": "const ids = new Set([generateId(), generateId(), generateId()]); expect(ids.size).toBe(3);"
+          },
+          {
+            "type": "function",
+            "location": "saveUser()",
+            "priority": "critical",
+            "reasoning": "Data persistence layer. Needs tests for successful saves, validation, database errors, duplicate IDs, timeouts.",
+            "suggestedTest": "await saveUser(user); expect(mockDB.save).toHaveBeenCalled();"
+          },
+          {
+            "type": "branch",
+            "location": "createUser() - email validation path",
+            "priority": "critical",
+            "reasoning": "Validates that invalid emails are rejected with appropriate error messages.",
+            "suggestedTest": "expect(() => createUser({ email: 'invalid', name: 'John' })).rejects.toThrow('Invalid email');"
+          },
+          {
+            "type": "branch",
+            "location": "createUser() - missing field path",
+            "priority": "high",
+            "reasoning": "Validates that missing required fields (email, name) are properly rejected.",
+            "suggestedTest": "expect(() => createUser({ email: 'user@test.com' })).rejects.toThrow('required');"
+          },
+          {
+            "type": "edge-case",
+            "location": "sanitizeInput() - empty string",
+            "priority": "medium",
+            "reasoning": "Edge case: empty string should be handled without errors.",
+            "suggestedTest": "expect(sanitizeInput('')).toBe('');"
+          },
+          {
+            "type": "edge-case",
+            "location": "sanitizeInput() - encoded HTML entities",
+            "priority": "high",
+            "reasoning": "Edge case: encoded HTML should be decoded and re-sanitized to prevent bypass attacks.",
+            "suggestedTest": "const result = sanitizeInput('&lt;script&gt;'); expect(result).not.toContain('alert');"
+          },
+          {
+            "type": "edge-case",
+            "location": "createUser() - XSS in name field",
+            "priority": "critical",
+            "reasoning": "Security edge case: XSS payload in name field should be sanitized before database storage.",
+            "suggestedTest": "const user = await createUser({ email: 'test@test.com', name: '<img onerror=x>' }); expect(user.name).not.toContain('<img');"
+          }
+        ],
+        "coverageEstimate": 0,
+        "summary": "Complete lack of test coverage (0%). All 5 exported functions are untested. Critical gaps include security validation functions (email, sanitization), core business logic (createUser), and data persistence (saveUser). The file serves as a fixture for code quality evaluation and needs comprehensive tests covering normal cases, error handling, security validations, and edge cases. Minimum 48 test cases needed for adequate coverage."
+      },
+      "refactorings": {
+        "file": "fixtures/clean-code.ts",
+        "suggestions": [
+          {
+            "type": "extract-function",
+            "location": "createUser() function (lines 42-65)",
+            "impact": "high",
+            "description": "Extract validation logic from createUser into separate validateUserInput() function. Extract user object creation into buildUser() function. The createUser function currently combines validation, sanitization, ID generation, and database operations.",
+            "before": "export async function createUser(input: CreateUserInput): Promise<User> {\n  if (!input.email || !input.name) {\n    throw new Error('Email and name are required');\n  }\n  if (!isValidEmail(input.email)) {\n    throw new Error('Invalid email format');\n  }\n  const sanitizedName = sanitizeInput(input.name);\n  const user: User = { id: generateId(), email: input.email, name: sanitizedName, createdAt: new Date() };\n  await saveUser(user);\n  return user;\n}",
+            "after": "function validateUserInput(input: CreateUserInput): void {\n  if (!input.email || !input.name) throw new Error('Required fields missing');\n  if (!isValidEmail(input.email)) throw new Error('Invalid email format');\n}\n\nfunction buildUser(input: CreateUserInput, id: string): User {\n  return {\n    id,\n    email: input.email.toLowerCase(),\n    name: sanitizeInput(input.name),\n    createdAt: new Date()\n  };\n}\n\nexport async function createUser(input: CreateUserInput): Promise<User> {\n  validateUserInput(input);\n  const id = generateId();\n  const user = buildUser(input, id);\n  await saveUser(user);\n  return user;\n}",
+            "benefits": "Improved separation of concerns. Each function has a single responsibility. Validation logic is reusable in other contexts. Easier to test individual steps. Clearer code flow through composition."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "Email validation and input validation pattern (lines 22-40)",
+            "impact": "high",
+            "description": "Replace scattered validation functions with schema-based validation using Zod. This consolidates validation rules into a single schema that serves as both validator and type source.",
+            "before": "export function isValidEmail(email: string): boolean {\n  const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n  return emailRegex.test(email);\n}\n\nexport function sanitizeInput(input: string): string {\n  return input.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;');\n}\n\nexport interface CreateUserInput {\n  email: string;\n  name: string;\n}",
+            "after": "import { z } from 'zod';\n\nconst CreateUserInputSchema = z.object({\n  email: z.string().email('Invalid email format').trim(),\n  name: z.string().min(1, 'Name required').max(255).trim()\n});\n\nexport type CreateUserInput = z.infer<typeof CreateUserInputSchema>;\n\nexport function validateAndSanitizeInput(input: unknown): CreateUserInput {\n  return CreateUserInputSchema.parse(input);\n}",
+            "benefits": "Single source of truth for validation rules. Automatic type inference. Better error messages. Eliminates regex maintenance burden. Schema can generate API documentation. Type-safe throughout pipeline."
+          },
+          {
+            "type": "modernize",
+            "location": "ID generation function (line 70)",
+            "impact": "medium",
+            "description": "Replace weak Math.random()-based ID generation with cryptographically secure UUID generation. Current approach is predictable and vulnerable.",
+            "before": "function generateId(): string {\n  return `user_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;\n}",
+            "after": "import { randomUUID } from 'crypto';\n\nexport function generateId(): string {\n  return randomUUID();\n}",
+            "benefits": "Cryptographically secure ID generation. No collision risks. Prevents enumeration attacks. Industry standard. No dependency on Date.now(). Simpler, more maintainable code."
+          },
+          {
+            "type": "pattern-improvement",
+            "location": "Error handling throughout (lines 42-83)",
+            "impact": "medium",
+            "description": "Replace generic Error throws with custom error types that distinguish validation errors from database errors from duplicate user errors.",
+            "before": "export async function createUser(input: CreateUserInput): Promise<User> {\n  if (!input.email) throw new Error('Email required');\n  if (!isValidEmail(input.email)) throw new Error('Invalid email format');\n  // ... database operations\n  await saveUser(user);\n}",
+            "after": "class ValidationError extends Error {\n  constructor(field: string, message: string) {\n    super(message);\n    this.name = 'ValidationError';\n    this.field = field;\n  }\n}\n\nclass DuplicateUserError extends Error {\n  constructor(email: string) {\n    super(`User already exists`);\n    this.name = 'DuplicateUserError';\n    this.email = email;\n  }\n}\n\nexport async function createUser(input: CreateUserInput): Promise<User> {\n  try {\n    const validated = validateAndSanitizeInput(input);\n    if (await userExists(validated.email)) {\n      throw new DuplicateUserError(validated.email);\n    }\n    const id = generateId();\n    const user = buildUser(validated, id);\n    await saveUser(user);\n    return user;\n  } catch (error) {\n    if (error instanceof z.ZodError) {\n      throw new ValidationError(error.issues[0].path[0] as string, error.message);\n    }\n    throw error;\n  }\n}",
+            "benefits": "Type-safe error handling. Callers can catch specific errors. Different errors map to appropriate HTTP status codes. Better error reporting and logging. Clearer error semantics."
+          },
+          {
+            "type": "simplify",
+            "location": "sanitizeInput and XSS prevention (line 32)",
+            "impact": "high",
+            "description": "Replace manual XSS prevention with proven library. Current string replacement approach is insufficient.",
+            "before": "export function sanitizeInput(input: string): string {\n  return input\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;')\n    .replace(/\"/g, '&quot;')\n    .replace(/'/g, '&#039;');\n}",
+            "after": "import DOMPurify from 'isomorphic-dompurify';\n\nexport function sanitizeInput(input: string): string {\n  return DOMPurify.sanitize(input, { ALLOWED_TAGS: [] });\n}",
+            "benefits": "Proven XSS prevention library. Handles encoded variations. Protects against attribute-based XSS. No maintenance burden. Industry standard. More comprehensive protection."
+          },
+          {
+            "type": "extract-function",
+            "location": "Type definitions and API models (lines 10-18)",
+            "impact": "medium",
+            "description": "Separate internal domain models from API request/response models. Add response schema for JSON serialization.",
+            "before": "export interface User {\n  id: string;\n  email: string;\n  name: string;\n  createdAt: Date;\n}\n\nexport interface CreateUserInput {\n  email: string;\n  name: string;\n}",
+            "after": "// Domain model\nexport interface User {\n  id: string;\n  email: string;\n  name: string;\n  createdAt: Date;\n}\n\n// Request schema\nconst CreateUserRequestSchema = z.object({\n  email: z.string().email(),\n  name: z.string().trim().min(1)\n});\n\nexport type CreateUserRequest = z.infer<typeof CreateUserRequestSchema>;\n\n// Response schema\nconst UserResponseSchema = z.object({\n  id: z.string(),\n  email: z.string(),\n  name: z.string(),\n  createdAt: z.string().datetime()\n});\n\nexport type UserResponse = z.infer<typeof UserResponseSchema>;\n\n// Conversion\nexport function toUserResponse(user: User): UserResponse {\n  return { ...user, createdAt: user.createdAt.toISOString() };\n}",
+            "benefits": "Clear API boundaries. Independent evolution of internal and external models. Type-safe conversions. Automatic validation at boundaries. Better documentation through schemas."
+          }
+        ],
+        "summary": "The file contains several significant refactoring opportunities focused on security, separation of concerns, and use of industry-standard libraries. Priority 1 items involve replacing custom validation/sanitization with proven libraries and extracting functions to follow Single Responsibility Principle. These changes will substantially improve security, maintainability, and testability. Priority 2 items involve better error handling and type separation. The suggested refactorings align with clean code principles and modern TypeScript practices."
+      }
+    }
+  ],
+  "summary": {
+    "totalFiles": 1,
+    "overallScore": 42,
+    "criticalIssues": 5,
+    "highPriorityTests": 7,
+    "refactoringOpportunities": 6
+  },
+  "recommendations": [
+    {
+      "priority": "critical",
+      "category": "Security",
+      "description": "Replace custom email validation regex with proven library (zod, email-validator). Current regex pattern is inadequate and can be bypassed.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    },
+    {
+      "priority": "critical",
+      "category": "Security",
+      "description": "Replace manual XSS sanitization with proven library (DOMPurify, xss). Simple string replacement is insufficient and easily bypassed by case variations and encoded entities.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    },
+    {
+      "priority": "critical",
+      "category": "Security",
+      "description": "Replace weak ID generation (Math.random) with cryptographically secure UUID generation. Current approach is predictable and vulnerable to enumeration attacks.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    },
+    {
+      "priority": "critical",
+      "category": "Testing",
+      "description": "Create comprehensive test suite with 48+ test cases. All 5 functions are currently untested (0% coverage). Critical tests needed for validation, sanitization, error handling, and edge cases.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Code Quality",
+      "description": "Add maximum length validation for input fields. No length constraints allow DoS attacks through extremely long inputs.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Architecture",
+      "description": "Extract validation, sanitization, and user building logic into separate functions. Current createUser() violates Single Responsibility Principle.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    },
+    {
+      "priority": "high",
+      "category": "Security",
+      "description": "Implement rate limiting for user creation endpoint. Currently vulnerable to brute force attacks.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Security",
+      "description": "Use generic error messages instead of revealing system state. Current errors can enable user enumeration attacks.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Documentation",
+      "description": "Add comprehensive JSDoc comments with @security, @throws, @param annotations explaining validation and security properties.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    },
+    {
+      "priority": "medium",
+      "category": "Code Quality",
+      "description": "Replace scattered validation with schema-based validation using Zod. Consolidates rules into single source of truth.",
+      "files": [
+        "fixtures/clean-code.ts"
+      ]
+    }
+  ],
+  "metadata": {
+    "analyzedAt": "2026-11-17T00:00:00Z",
+    "duration": 45000,
+    "agentVersions": {
+      "code-quality-analyzer": "1.0",
+      "test-coverage-analyzer": "1.0",
+      "refactoring-suggester": "1.0"
+    }
+  }
+}
